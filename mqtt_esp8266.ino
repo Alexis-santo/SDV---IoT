@@ -41,12 +41,14 @@ PubSubClient client(espClient);
 long lastMessage = 0;
 char message[50];
 int value = 0;
+int dots = 0;
+
 
 int moistureSensorPin = A0;  
 int moistureSensorValue = 0;  
 int moisturePercent = 0;
 
-int lightSensorPin = A0;  
+int lightSensorPin = D0;  
 int lightSensorValue = 0;  
 
 // the setup routine runs once when you press reset
@@ -74,6 +76,11 @@ void setup_wifi()
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
+    if (dots == 20)
+    {
+      Serial.print("\n");
+      dots = 0;
+    }
     Serial.print(".");
   }
 
@@ -132,23 +139,6 @@ void reconnect()
   }
 }
 
-/*void helloWorldTest()
-{
-  long now = millis();
-  
-  if (now - lastMessage > 2000)
-  {
-    lastMessage = now;
-    ++value;
-    snprintf (message, 75, "%ld# hello world", message);
-    Serial.print("Publish message: ");
-    Serial.println(message);
-    // ... and subscribe
-    //client.subscribe(moistureChannel);
-    client.publish(testChannel, message);
-  }
-}*/
-
 void printMoistureValuesToSerial()
 {
   Serial.print("\n\nMoisture analog Value: ");
@@ -200,9 +190,7 @@ void loop()
     reconnect();
   }
   client.loop();
-  //moistureSensorChecking();
   //lightSensorChecking();
-  delay(5000);
+  delay(3000);
   moistureSensorChecking();
-  //helloWorldTest();
 }
