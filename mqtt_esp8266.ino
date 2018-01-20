@@ -24,11 +24,14 @@ int moisturePercent = 0;
 
 int lightSensorPin = D0;  
 int lightSensorValue = 0;  
+int blueLedPin = BUILTIN_LED;
+int orangeLedPin = D1;
 
 // the setup routine runs once when you press reset
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+  pinMode(D1, OUTPUT);
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
@@ -70,19 +73,19 @@ void callback(char* topic, byte* payload, unsigned int length)
   Serial.print("\n\nMessage arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  char* message = "";
+  //char* message = "";
     
   for (int i = 0; i < length; i++)
   {
     Serial.print((char)payload[i]);
+   //message += (char)payload[i];
   }
   Serial.println();
-  char* msg = strcat("message : ", message);
-  Serial.print(msg);
-  int nb = atoi(message);
+  //char* msg = strcat("message : ", message);
+  //int nb = atoi(message);
   
   // Switch on the LED if an 1 was received as first character
-  if (nb < 10)
+  if ((char)payload[0] == '1')
   {
     digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
     // but actually the LED is on; this is because
@@ -92,7 +95,6 @@ void callback(char* topic, byte* payload, unsigned int length)
   {
     digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
   }
-
 }
 
 void reconnect()
@@ -180,6 +182,18 @@ void loop()
       client.subscribe(moistureChannel);
       isSub = true; 
   }
-  delay(3000);
   moistureSensorChecking();
+  
+  if (moisturePercent > 10)
+{
+    digitalWrite(blueLedPin, HIGH);   // Turn the LED on (Note that LOW is the voltage level
+    // but actually the LED is on; this is because
+    // it is acive low on the ESP-01)
+    digitalWrite(orangeLedPin, LOW);
+  }
+  else
+  {
+    digitalWrite(blueLedPin, LOW);  // Turn the LED off by making the voltage HIGH
+    digitalWrite(orangeLedPin, HIGH);
+  }
 }
